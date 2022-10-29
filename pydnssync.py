@@ -2,28 +2,19 @@
 
 import socket
 import ipaddress
-from pprint import pprint
+import argparse
 
-hosts = [
-	"andy-pc-new",
-	"andy-xo",
-	"nas",
-	"pfsense",
-	"synology",
-	"twitch-websocket",
-	"xcp-dev",
-	"xcp-docker-amd",
-	"xcp-mailnews",
-	"xcp-mbserver-docker",
-	"xcp-media",
-	"xcp-xo-amd",
-	"xcp-xo-tmp",
-]
+parser = argparse.ArgumentParser(description='Lookup a list of hosts and generate a TinyDNS configuration file with their addresses')
+parser.add_argument('--hosts', metavar='host', nargs='+', help='Host names to look up', required = True)
+parser.add_argument('--domain', '-d', help='Domain to append to each host', required = True)
+parser.add_argument('--outfile', '-o', help='Output file name', required = True)
 
-with open('gently.org.uk-internal.txt', 'w') as file:
-	for host in hosts:
+args = parser.parse_args()
+
+with open(args.outfile, 'w') as file:
+	for host in args.hosts:
 		try:
-			fqdn = f"{host}.gently.org.uk"
+			fqdn = f"{host}.{args.domain}"
 			addresses = socket.getaddrinfo(fqdn, 80, type = socket.SOCK_STREAM)
 			for (family, type, proto, canonname, sockaddr) in addresses:
 				address = ipaddress.ip_address(sockaddr[0])
